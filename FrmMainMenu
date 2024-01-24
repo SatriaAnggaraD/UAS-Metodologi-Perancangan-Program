@@ -1,0 +1,36 @@
+
+Public Class FrmMainMenu
+
+    Private Sub InputDataMobilToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles InputDataMobilToolStripMenuItem.Click
+        FrmDataMobil.MdiParent = Me
+        FrmDataMobil.Show()
+
+    End Sub
+
+    Private Sub InputDataPelangganToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles InputDataPelangganToolStripMenuItem.Click
+        FrmDataPelanggan.MdiParent = Me
+        FrmDataPelanggan.Show()
+
+    End Sub
+
+    Private Sub ExitToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ExitToolStripMenuItem.Click
+        Dim Tanya = MessageBox.Show("Anda yakin menutup aplikasi ini?", "Message", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+        If Tanya = Windows.Forms.DialogResult.Yes Then
+            End
+        End If
+    End Sub
+
+    Private Sub AboutAppToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles AboutAppToolStripMenuItem.Click
+        FrmAbout.MdiParent = Me
+        FrmAbout.Show()
+    End Sub
+
+    Private Sub TransaksiToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TransaksiToolStripMenuItem.Click
+        FrmTransaksiRental.MdiParent = Me
+        FrmTransaksiRental.Show()
+    End Sub
+
+    Private Sub FrmMainMenu_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+
+    End Sub
+End Class
