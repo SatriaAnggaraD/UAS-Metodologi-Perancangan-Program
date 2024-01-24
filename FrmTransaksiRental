@@ -1,0 +1,162 @@
+Public Class FrmTransaksiRental
+
+    Dim SQL As String
+    Dim process As New ClsConnection
+    Dim tblTransaksi As DataTable
+
+    Sub Code_Otomatic()
+        tblTransaksi = process.ExecuteQuery("Select * From transaksi_rental order by id_transaksi desc")
+        If tblTransaksi.Rows.Count = 0 Then
+            IdTransaksiTxt.Text = "TRN00001"
+        Else
+            With tblTransaksi.Rows(0)
+                IdTransaksiTxt.Text = .Item("id_transaksi")
+            End With
+
+            IdTransaksiTxt.Text = Val(Microsoft.VisualBasic.Right(IdTransaksiTxt.Text, 5)) + 1
+            Select Case Len(IdTransaksiTxt.Text)
+                Case 1
+                    IdTransaksiTxt.Text = "TRN0000" & IdTransaksiTxt.Text & ""
+                Case 2
+                    IdTransaksiTxt.Text = "TRN000" & IdTransaksiTxt.Text & ""
+                Case 3
+                    IdTransaksiTxt.Text = "TRN00" & IdTransaksiTxt.Text & ""
+                Case 4
+                    IdTransaksiTxt.Text = "TR0" & IdTransaksiTxt.Text & ""
+                Case 5
+                    IdTransaksiTxt.Text = "TRN" & IdTransaksiTxt.Text & ""
+            End Select
+        End If
+    End Sub
+    Sub Data_Record()
+        tblTransaksi = process.ExecuteQuery("Select * From transaksi_rental order by id_transaksi asc")
+        DGTransaksi.DataSource = tblTransaksi
+        DGTransaksi.Columns(0).Width = 110
+        DGTransaksi.Columns(1).Width = 110
+        DGTransaksi.Columns(2).Width = 130
+        DGTransaksi.Columns(3).Width = 140
+        DGTransaksi.Columns(4).Width = 200
+    End Sub
+
+    Sub mobil()
+        tblTransaksi = process.ExecuteQuery("Select * From data_mobil order by nomor_mobil asc")
+        If tblTransaksi.Rows.Count = 0 Then
+        Else
+            CbIdMobil.Items.Clear()
+            With tblTransaksi.Columns(0)
+                For a = 0 To tblTransaksi.Rows.Count - 1
+                    CbIdMobil.Items.Add("" & .Table.Rows(a).Item(0) & "/" & .Table.Rows(a).Item(1) & "")
+                Next a
+            End With
+        End If
+    End Sub
+    Sub pelanggan_rental()
+        tblTransaksi = process.ExecuteQuery("Select * From data_pelanggan order by id_pelanggan asc")
+        If tblTransaksi.Rows.Count = 0 Then
+        Else
+            CbPelanggan.Items.Clear()
+            With tblTransaksi.Columns(0)
+                For a = 0 To tblTransaksi.Rows.Count - 1
+                    CbPelanggan.Items.Add("" & .Table.Rows(a).Item(0) & "/" & .Table.Rows(a).Item(1) & "")
+                Next a
+            End With
+        End If
+    End Sub
+    Sub Arrange()
+        IdTransaksiTxt.Text = ""
+        LamaRentalTxt.Text = ""
+        TanggalRentalTxt.Text = ""
+
+        NamaTxt.Enabled = True
+        KontakTxt.Enabled = True
+        JenisMobilTxt.Enabled = True
+        HargaSewaTxt.Enabled = True
+        DeleteBtn.Enabled = True
+
+        CbIdMobil.Text = ""
+        CbPelanggan.Text = ""
+        Call Code_Otomatic()
+        Call Data_Record()
+        Call pelanggan_rental()
+        Call mobil()
+    End Sub
+
+
+    Private Sub CbIdMobil_TextChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles CbIdMobil.TextChanged
+        tblTransaksi = process.ExecuteQuery("Select * From data_mobil where nomor_mobil = '" & Microsoft.VisualBasic.Left(CbIdMobil.Text, 7) & "' order by nomor_mobil asc")
+        If tblTransaksi.Rows.Count = 0 Then
+        Else
+            With tblTransaksi.Rows(0)
+                JenisMobilTxt.Text = .Item("jenis_mobil")
+                HargaSewa.Text = .Item("harga_sewa")
+            End With
+        End If
+    End Sub
+
+    Private Sub CbPelanggan_TextChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles CbPelanggan.TextChanged
+        tblTransaksi = process.ExecuteQuery("Select * From data_pelanggan where id_pelanggan = '" & Microsoft.VisualBasic.Left(CbPelanggan.Text, 7) & "' order by id_pelanggan asc")
+        If tblTransaksi.Rows.Count = 0 Then
+        Else
+            With tblTransaksi.Rows(0)
+                NamaTxt.Text = .Item("nama_pelanggan")
+                KontakTxt.Text = .Item("nomor_kontak")
+            End With
+        End If
+    End Sub
+    Private Sub DGTransaksi_CellDoubleClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DataGridViewCellEventArgs)
+        IdTransaksiTxt.Text = DGTransaksi.SelectedCells(0).Value
+        LamaRentalTxt.Text = DGTransaksi.SelectedCells(1).Value
+        TanggalRentalTxt.Text = DGTransaksi.SelectedCells(2).Value
+        DeleteBtn.Enabled = True
+    End Sub
+
+    Private Sub FrmTransaksiRental_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+        Call Arrange()
+    End Sub
+
+    Private Sub ProsesBtn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ProsesBtn.Click
+        If IdTransaksiTxt.Text = "" Then IdTransaksiTxt.Focus() : Exit Sub
+        If LamaRentalTxt.Text = "" Then LamaRentalTxt.Focus() : Exit Sub
+        If HargaSewa.Text = "" Then HargaSewa.Focus() : Exit Sub
+        If TanggalRentalTxt.Text = "" Then TanggalRentalTxt.Focus() : Exit Sub
+
+        If CbIdMobil.Text = "" Then CbIdMobil.Focus() : Exit Sub
+        If CbPelanggan.Text = "" Then CbPelanggan.Focus() : Exit Sub
+        Dim TotalHargaSewa As Integer
+        TotalHargaSewa = LamaRentalTxt.Text * HargaSewa.Text
+
+        SQL = "Insert Into transaksi_rental values ('" & IdTransaksiTxt.Text & "','" & LamaRentalTxt.Text & "','" & TanggalRentalTxt.Text & "','" & TotalHargaSewa & "','" & CbIdMobil.Text & "','" & CbPelanggan.Text & "')"
+        process.ExecuteNonQuery(SQL)
+        MessageBox.Show("Data Baru Berhasil Di Simpan..!!", "Saving success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Call Arrange()
+    End Sub
+    Private Sub DeleteBtn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles DeleteBtn.Click
+        SQL = "Delete From transaksi_rental Where id_transaksi= '" & IdTransaksiTxt.Text & "'"
+        Process.ExecuteNonQuery(SQL)
+        MessageBox.Show("Data sudah berhasil di Delete..!!", "Delete Data", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Call Arrange()
+    End Sub
+    Private Sub CariTxt_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles FindTxt.TextChanged
+        If IdPelangganRB.Checked = True Then
+            tblTransaksi = process.ExecuteQuery("Select * from transaksi_rental Where id_pelanggan Like '%" & FindTxt.Text & "%'")
+            If tblTransaksi.Rows.Count = 0 Then
+                DGTransaksi.DataSource = tblTransaksi
+                FindTxt.Focus()
+            Else
+                DGTransaksi.DataSource = tblTransaksi
+            End If
+        ElseIf IdTransaksiRB.Checked = True Then
+            tblTransaksi = process.ExecuteQuery("Select * from data_pelanggan Where nama_pelanggan Like '%" & FindTxt.Text & "%'")
+            If tblTransaksi.Rows.Count = 0 Then
+                DGTransaksi.DataSource = tblTransaksi
+                FindTxt.Focus()
+            Else
+                DGTransaksi.DataSource = tblTransaksi
+            End If
+        End If
+    End Sub
+
+    Private Sub CancelBtn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CancelBtn.Click
+        Call Arrange()
+    End Sub
+End Class
